@@ -2,11 +2,8 @@
 #include <chrono>
 #include <memory>
 
-using namespace std::chrono_literals;
-
 ArduinoDriver::ArduinoDriver() : Node("arduino_driver_node") {
-    // Declare and retrieve ROS2 parameters for port and baud rate.
-    // This makes the node configurable at runtime.
+
     this->declare_parameter<std::string>("port", "/dev/ttyACM0");
     this->declare_parameter<int>("baud_rate", 115200);
     this->get_parameter("port", port_name_);
@@ -36,7 +33,7 @@ ArduinoDriver::ArduinoDriver() : Node("arduino_driver_node") {
     
     // Create a wall timer that calls the read_serial_data method every 200ms (5Hz).
     timer_ = this->create_wall_timer(
-        200ms, std::bind(&ArduinoDriver::read_serial_data, this));
+        std::chrono::milliseconds(200), std::bind(&ArduinoDriver::read_serial_data, this));
 }
 
 void ArduinoDriver::read_serial_data() {

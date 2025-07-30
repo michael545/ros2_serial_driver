@@ -12,7 +12,7 @@ def main():
     
     try:
         ser = serial.Serial(port, baud_rate, timeout=1)
-        print(f"sim connected to {port} at {baud_rate} baud")
+        print(f"connected to {port} at {baud_rate} baud")
         
         message_count = 0
         while True:
