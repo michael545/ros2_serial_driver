@@ -4,7 +4,7 @@
 
 ArduinoDriver::ArduinoDriver() : Node("arduino_driver_node") {
 
-    this->declare_parameter<std::string>("port", "/dev/ttyACM0");
+    this->declare_parameter<std::string>("port", "/dev/ttyACM0"); //templeate parameters allow for easy config
     this->declare_parameter<int>("baud_rate", 115200);
     this->get_parameter("port", port_name_);
     this->get_parameter("baud_rate", baud_rate_);

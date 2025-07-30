@@ -1,6 +1,22 @@
 # ROS2 Serial Driver with Virtual Port Simulation
 
-Simple ROS2 C++ driver for serial comms with virtual port simulated using socat. Hardware-in-the-loop development without physical Arduino hardware.
+A ROS2 C++ driver that demonstrates hardware-in-the-loop development using **rclcpp** (ROS2 C++ API). This simple **publisher node** reads serial data and publishes it to ROS2 topics, utilizing the **wjwwood/serial library** for cross-platform serial communication.
+
+## Key Features
+
+- **ROS2 Integration**: Built with **rclcpp** for native ROS2 C++ API support
+- **Simple Publisher Pattern**: Reads serial data and publishes to `/arduino_data` topic
+- **Cross-Platform Serial Communication**: Uses the wjwwood/serial - *"a cross-platform library for interfacing with rs-232 serial like ports written in C++. It provides a modern C++ interface with a workflow designed to look and feel like PySerial, but with the speed and control provided by C++."*
+- **Virtual Hardware Simulation**: Complete testing environment using socat virtual serial ports
+- **Parameter-Driven Configuration**: Runtime configurable serial port and baud rate
+- **Professional ROS2 Patterns**: Demonstrates timer-based reading, error handling, and node lifecycle
+
+## Architecture
+
+```
+Arduino/Simulator → Serial Port → ROS2 Driver (rclcpp) → /arduino_data Topic
+     (Data Source)    (Hardware)    (C++ Publisher)      (ROS2 Subscribers)
+```
 
 ## Contents
 - [Prerequisites](#prerequisites)
