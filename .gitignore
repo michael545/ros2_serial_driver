@@ -1,0 +1,11 @@
+build/
+install/
+log/
+
+*.swp
+*.swo
+*~
+
+.DS_Store
+
+/all_code.txt
