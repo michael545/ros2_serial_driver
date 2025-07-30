@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# this does not work yet, but is a good start``
 echo "=== ROS2 Arduino Driver Virtual Port Test ==="
 echo
 
