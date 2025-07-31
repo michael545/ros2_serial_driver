@@ -24,7 +24,7 @@ Arduino/Simulator → Serial Port → ROS2 Driver (rclcpp) → /arduino_data Top
 
 ```bash
 # 1. Clone and build
-git clone this serial_driver_cpp
+git clone @this_url@ serial_driver_cpp
 cd serial_driver_cpp
 git clone https://github.com/wjwwood/serial.git src/serial
 sudo apt install socat python3-pip -y && pip3 install pyserial
@@ -32,7 +32,7 @@ colcon build && source install/setup.bash
 
 # 2. run in 4 different terminals:
 
-# terminal #1: virtual ports
+# terminal #1: virtual ports    
 socat -d -d pty,raw,echo=0,link=/tmp/ttyS10 pty,raw,echo=0,link=/tmp/ttyS11
 
 # terminal #2: arduino simulator  
