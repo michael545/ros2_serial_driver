@@ -1,0 +1,7 @@
+# Message to represent a command sent to the firmware
+uint8 command_id
+uint8[] data
+---
+# Response from the firmware
+bool success
+uint8[] response_data

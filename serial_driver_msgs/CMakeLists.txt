@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(serial_driver_cpp)
+project(serial_driver_msgs)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -17,30 +17,15 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# ADDED: Find the packages you depend on
-find_package(rclcpp REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(serial_driver_msgs REQUIRED)
 
-# Add serial lib as subdirectory
-add_subdirectory(src/serial)
-
-# Add include directories
-include_directories(include)
-
-# MODIFIED:
-add_executable(arduino_driver_node src/driver_node.cpp)
-ament_target_dependencies(arduino_driver_node rclcpp std_msgs serial_driver_msgs)
-target_link_libraries(arduino_driver_node serial)
-
-install(TARGETS
-  arduino_driver_node
-  DESTINATION lib/${PROJECT_NAME}
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/SensorData.msg"
+  "msg/Status.msg"
+  "srv/Command.srv"
+  DEPENDENCIES std_msgs
 )
-
-# MODIFIED: Update the install rule to use the new target name
-install(TARGETS arduino_driver_node
-  DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

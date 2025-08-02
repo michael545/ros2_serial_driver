@@ -1,6 +1,10 @@
 #include "serial_driver_cpp/arduino_driver.hpp"
 #include <chrono>
+#include <iostream>
 #include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
 
 ArduinoDriver::ArduinoDriver() : Node("arduino_driver_node") {
 
@@ -26,25 +30,63 @@ ArduinoDriver::ArduinoDriver() : Node("arduino_driver_node") {
 
     if (serial_port_.isOpen()) {
         RCLCPP_INFO(this->get_logger(), "Serial port opened successfully.");
+    } else {
+        RCLCPP_ERROR(this->get_logger(), "Failed to open serial port.");
+        rclcpp::shutdown();
+        return;
     }
 
-    // Create a publisher for std_msgs::msg::String messages on the "arduino_data" topic.
-    publisher_ = this->create_publisher<std_msgs::msg::String>("arduino_data", 10);
+    sensor_publisher_ = this->create_publisher<serial_driver_cpp::msg::SensorData>("sensor_data", 10);
+    command_subscriber_ = this->create_subscription<std_msgs::msg::String>(
+        "serial_command", 10, std::bind(&ArduinoDriver::command_callback, this, std::placeholders::_1));
     
-    // Create a wall timer that calls the read_serial_data method every 200ms (5Hz).
     timer_ = this->create_wall_timer(
-        std::chrono::milliseconds(200), std::bind(&ArduinoDriver::read_serial_data, this));
+        std::chrono::milliseconds(200), 
+        std::bind(&ArduinoDriver::read_serial_data, this));
+}
+
+void ArduinoDriver::command_callback(const std_msgs::msg::String::SharedPtr msg) {
+    RCLCPP_INFO(this->get_logger(), "Writing to serial port: '%s'", msg->data.c_str());
+    serial_port_.write(msg->data + "\n");
 }
 
 void ArduinoDriver::read_serial_data() {
-    // Check if there is data available to read from the serial port.
     if (serial_port_.available()) {
-        std_msgs::msg::String msg;
-        // Read one line of data, terminated by the newline character.
-        msg.data = serial_port_.readline();
-        RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", msg.data.c_str());
-        // Publish the received data on the ROS2 topic.
-        publisher_->publish(msg);
+        std::string line = serial_port_.readline();
+        RCLCPP_INFO(this->get_logger(), "Read from serial: '%s'", line.c_str());
+
+        auto message = serial_driver_cpp::msg::SensorData();
+        message.header.stamp = this->now();
+        message.header.frame_id = "sensor_data";
+
+        // Basic parsing for "temp:XX.X,hum:YY.Y"
+        std::stringstream ss(line);
+        std::string segment;
+        std::vector<std::string> seglist;
+
+        while(std::getline(ss, segment, ','))
+        {
+           seglist.push_back(segment);
+        }
+
+        if (seglist.size() == 2) {
+            try {
+                size_t temp_pos = seglist[0].find(":");
+                if (temp_pos != std::string::npos) {
+                    message.temperature = std::stof(seglist[0].substr(temp_pos + 1));
+                }
+
+                size_t hum_pos = seglist[1].find(":");
+                if (hum_pos != std::string::npos) {
+                    message.humidity = std::stof(seglist[1].substr(hum_pos + 1));
+                }
+                sensor_publisher_->publish(message);
+            } catch (const std::invalid_argument& ia) {
+                RCLCPP_WARN(this->get_logger(), "Could not parse serial data: '%s'", line.c_str());
+            }
+        } else {
+            RCLCPP_WARN(this->get_logger(), "Received malformed data: '%s'", line.c_str());
+        }
     }
 }
 

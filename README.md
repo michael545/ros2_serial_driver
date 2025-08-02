@@ -31,7 +31,7 @@ sudo apt install socat python3-pip -y && pip3 install pyserial
 colcon build && source install/setup.bash
 
 # 2. run in 4 different terminals:
-
+`   
 # terminal #1: virtual ports    
 socat -d -d pty,raw,echo=0,link=/tmp/ttyS10 pty,raw,echo=0,link=/tmp/ttyS11
 
